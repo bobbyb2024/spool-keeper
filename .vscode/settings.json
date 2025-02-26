@@ -1,0 +1,14 @@
+{
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma",
+    "editor.formatOnSave": true
+  },
+  "files.associations": {
+    "*.prisma": "prisma"
+  },
+  "prisma.schema.folders": [
+    "prisma/schema/base.prisma",
+    "prisma/schema/enums",
+    "prisma/schema/models"
+  ]
+} 

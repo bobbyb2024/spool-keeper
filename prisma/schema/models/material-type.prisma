@@ -1,0 +1,66 @@
+/// @description Material type configuration and properties
+model MaterialType {
+  /// Unique identifier
+  id             String   @id @default(uuid())
+  /// Material name
+  name           String   @unique
+  /// List of common abbreviations
+  abbreviations  String[]
+  /// Registration date
+  registered     DateTime @default(now())
+  /// Profile options
+  profileOptions String?
+  /// Material tags
+  tags           String[]
+
+  // Temperature Settings
+  /// Minimum bed temperature
+  bedTempLow      Float
+  /// Maximum bed temperature
+  bedTempHigh     Float
+  /// Minimum nozzle temperature
+  nozzleTempLow   Float
+  /// Maximum nozzle temperature
+  nozzleTempHigh  Float
+  /// Minimum chamber temperature
+  chamberTempLow  Float?
+  /// Maximum chamber temperature
+  chamberTempHigh Float?
+
+  // Layer-specific Settings
+  /// First layer bed temperature
+  bedTempFirstLayer      Float
+  /// Other layers bed temperature
+  bedTempOtherLayers     Float
+  /// First layer nozzle temperature
+  nozzleTempFirstLayer   Float
+  /// Other layers nozzle temperature
+  nozzleTempOtherLayers  Float
+  /// First layer chamber temperature
+  chamberTempFirstLayer  Float?
+  /// Other layers chamber temperature
+  chamberTempOtherLayers Float?
+
+  // Compatibility Settings
+  /// Compatible nozzle types
+  supportedNozzleTypes String[]
+  /// Compatible printer models
+  supportedPrinters    String[]
+  /// AMS compatibility flag
+  supportsAMS          Boolean  @default(false)
+
+  // Extended Settings
+  /// Extended profile options in markdown
+  profileOptionsExtended String? @db.Text
+
+  /// Creation timestamp
+  createdAt DateTime   @default(now())
+  /// Last update timestamp
+  updatedAt DateTime   @updatedAt
+  /// Associated filaments
+  filaments Filament[]
+
+  @@index([name])
+  @@index([tags])
+  @@map("material_types")
+} 

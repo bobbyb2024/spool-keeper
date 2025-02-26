@@ -1,0 +1,24 @@
+/// @description User model for authentication and authorization
+model User {
+  /// Unique identifier
+  id           String         @id @default(uuid())
+  /// User's email address
+  email        String         @unique
+  /// User's display name
+  name         String?
+  /// Hashed password
+  password     String
+  /// User's role
+  role         UserRole       @default(USER)
+  /// Creation timestamp
+  createdAt    DateTime       @default(now())
+  /// Last update timestamp
+  updatedAt    DateTime       @updatedAt
+  /// User's filament collection
+  filaments    Filament[]
+  /// User's usage history
+  usageHistory UsageHistory[]
+
+  @@index([email])
+  @@map("users")
+} 

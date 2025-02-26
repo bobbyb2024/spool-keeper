@@ -1,0 +1,43 @@
+/// @description Filament inventory item
+model Filament {
+  /// Unique identifier
+  id             String         @id @default(uuid())
+  /// Filament name
+  name           String
+  /// Manufacturer reference
+  manufacturerId String
+  manufacturer   Manufacturer   @relation(fields: [manufacturerId], references: [id])
+  /// Owner reference
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  /// Material type reference
+  materialTypeId String
+  materialType   MaterialType   @relation(fields: [materialTypeId], references: [id])
+  /// Filament color
+  color          String
+  /// Filament diameter in mm
+  diameter       Float
+  /// Initial weight in grams
+  initialWeight  Float
+  /// Current weight in grams
+  currentWeight  Float
+  /// Empty spool weight in grams
+  spoolWeight    Float
+  /// Purchase price
+  price          Float
+  /// Storage location
+  location       String?
+  /// Additional notes
+  notes          String?
+  /// Creation timestamp
+  createdAt      DateTime       @default(now())
+  /// Last update timestamp
+  updatedAt      DateTime       @updatedAt
+  /// Usage history
+  usageHistory   UsageHistory[]
+
+  @@index([manufacturerId])
+  @@index([userId])
+  @@index([materialTypeId])
+  @@map("filaments")
+} 

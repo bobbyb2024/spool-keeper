@@ -1,5 +1,12 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema", "extendedWhereUnique"]
 }
 
 datasource db {
@@ -7,30 +14,208 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Filament {
-  id          String   @id @default(uuid())
-  name        String
-  brand       String
-  material    String   // PLA, PETG, ABS, etc.
-  color       String
-  diameter    Float    // in mm
-  initialWeight Float  // in grams
-  currentWeight Float  // in grams
-  spoolWeight  Float   // empty spool weight in grams
-  price       Float
-  location    String?
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  usageHistory UsageHistory[]
+// Import schema files
+#import "schema/enums/*.prisma"
+#import "schema/models/*.prisma"
+
+// ============= Enums =============
+/// @description User roles for access control
+enum UserRole {
+  /// Administrator with full access
+  ADMIN
+  /// Regular user with limited access
+  USER
 }
 
+// ============= Models =============
+/// @description User model for authentication and authorization
+model User {
+  /// Unique identifier
+  id           String         @id @default(uuid())
+  /// User's email address
+  email        String         @unique
+  /// User's display name
+  name         String?
+  /// Hashed password
+  password     String
+  /// User's role
+  role         UserRole       @default(USER)
+  /// Creation timestamp
+  createdAt    DateTime       @default(now())
+  /// Last update timestamp
+  updatedAt    DateTime       @updatedAt
+  /// User's filament collection
+  filaments    Filament[]
+  /// User's usage history
+  usageHistory UsageHistory[]
+
+  @@index([email])
+  @@map("users")
+}
+
+/// @description Material type configuration and properties
+model MaterialType {
+  /// Unique identifier
+  id             String   @id @default(uuid())
+  /// Material name
+  name           String   @unique
+  /// List of common abbreviations
+  abbreviations  String[]
+  /// Registration date
+  registered     DateTime @default(now())
+  /// Profile options
+  profileOptions String?
+  /// Material tags
+  tags           String[]
+
+  // Temperature Settings
+  /// Minimum bed temperature
+  bedTempLow      Float
+  /// Maximum bed temperature
+  bedTempHigh     Float
+  /// Minimum nozzle temperature
+  nozzleTempLow   Float
+  /// Maximum nozzle temperature
+  nozzleTempHigh  Float
+  /// Minimum chamber temperature
+  chamberTempLow  Float?
+  /// Maximum chamber temperature
+  chamberTempHigh Float?
+
+  // Layer-specific Settings
+  /// First layer bed temperature
+  bedTempFirstLayer      Float
+  /// Other layers bed temperature
+  bedTempOtherLayers     Float
+  /// First layer nozzle temperature
+  nozzleTempFirstLayer   Float
+  /// Other layers nozzle temperature
+  nozzleTempOtherLayers  Float
+  /// First layer chamber temperature
+  chamberTempFirstLayer  Float?
+  /// Other layers chamber temperature
+  chamberTempOtherLayers Float?
+
+  // Compatibility Settings
+  /// Compatible nozzle types
+  supportedNozzleTypes String[]
+  /// Compatible printer models
+  supportedPrinters    String[]
+  /// AMS compatibility flag
+  supportsAMS          Boolean  @default(false)
+
+  // Extended Settings
+  /// Extended profile options in markdown
+  profileOptionsExtended String? @db.Text
+
+  /// Creation timestamp
+  createdAt DateTime   @default(now())
+  /// Last update timestamp
+  updatedAt DateTime   @updatedAt
+  /// Associated filaments
+  filaments Filament[]
+
+  @@index([name])
+  @@index([tags])
+  @@map("material_types")
+}
+
+/// @description Filament manufacturer information
+model Manufacturer {
+  /// Unique identifier
+  id             String     @id @default(uuid())
+  /// Manufacturer name
+  name           String     @unique
+  /// Registration date
+  registeredDate DateTime   @default(now())
+  /// Website URL
+  website        String?
+  /// Logo URL
+  logo           String?
+  /// Label logo URL
+  labelLogo      String?
+  /// Manufacturer tags
+  tags           String[]
+  /// Additional comments
+  comments       String?
+  /// Creation timestamp
+  createdAt      DateTime   @default(now())
+  /// Last update timestamp
+  updatedAt      DateTime   @updatedAt
+  /// Associated filaments
+  filaments      Filament[]
+
+  @@map("manufacturers")
+}
+
+/// @description Filament inventory item
+model Filament {
+  /// Unique identifier
+  id             String         @id @default(uuid())
+  /// Filament name
+  name           String
+  /// Manufacturer reference
+  manufacturerId String
+  manufacturer   Manufacturer   @relation(fields: [manufacturerId], references: [id])
+  /// Owner reference
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  /// Material type reference
+  materialTypeId String
+  materialType   MaterialType   @relation(fields: [materialTypeId], references: [id])
+  /// Filament color
+  color          String
+  /// Filament diameter in mm
+  diameter       Float
+  /// Initial weight in grams
+  initialWeight  Float
+  /// Current weight in grams
+  currentWeight  Float
+  /// Empty spool weight in grams
+  spoolWeight    Float
+  /// Purchase price
+  price          Float
+  /// Storage location
+  location       String?
+  /// Additional notes
+  notes          String?
+  /// Creation timestamp
+  createdAt      DateTime       @default(now())
+  /// Last update timestamp
+  updatedAt      DateTime       @updatedAt
+  /// Usage history
+  usageHistory   UsageHistory[]
+
+  @@index([manufacturerId])
+  @@index([userId])
+  @@index([materialTypeId])
+  @@map("filaments")
+}
+
+/// @description Filament usage history
 model UsageHistory {
+  /// Unique identifier
   id          String   @id @default(uuid())
+  /// Filament reference
   filamentId  String
   filament    Filament @relation(fields: [filamentId], references: [id])
-  usedAmount  Float    // in grams
+  /// User reference
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  /// Amount used in grams
+  usedAmount  Float
+  /// Project name
   projectName String?
+  /// Usage date
   date        DateTime @default(now())
+  /// Additional notes
   notes       String?
-} 
+  /// Print duration in minutes
+  printTime   Int?
+  /// Print success flag
+  success     Boolean  @default(true)
+
+  @@index([filamentId])
+  @@index([userId])
+  @@map("usage_history")
+}

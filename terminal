@@ -1,4 +1,0 @@
-npx create-next-app@latest spool-keeper --typescript --tailwind --eslint
-cd spool-keeper
-npm install @mui/material @emotion/react @emotion/styled @prisma/client @mui/icons-material @mui/x-data-grid
-npm install -D prisma @types/node @types/react @testing-library/react @testing-library/jest-dom jest 

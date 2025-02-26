@@ -1,109 +1,93 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { 
-  Container, 
-  Typography, 
-  Box,
-  Button,
-  Grid,
-  Card,
-  CardContent,
-  LinearProgress
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import { DataGrid } from '@mui/x-data-grid';
+import { Box, Grid, Card, CardContent, Typography } from '@mui/material';
+import { PageContainer } from '@/components/common/PageContainer';
+import {
+  Inventory as InventoryIcon,
+  Business as BusinessIcon,
+  History as HistoryIcon,
+  Warning as WarningIcon,
+} from '@mui/icons-material';
 
-interface Filament {
-  id: string;
-  name: string;
-  brand: string;
-  material: string;
-  color: string;
-  currentWeight: number;
-  initialWeight: number;
-  spoolWeight: number;
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  color?: string;
+}
+
+function StatCard({ title, value, icon, color = 'primary' }: StatCardProps) {
+  return (
+    <Card>
+      <CardContent>
+        <Grid container spacing={3} sx={{ justifyContent: 'space-between' }}>
+          <Grid item>
+            <Typography color="textSecondary" gutterBottom variant="overline">
+              {title}
+            </Typography>
+            <Typography color="textPrimary" variant="h4">
+              {value}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Box
+              sx={{
+                backgroundColor: `${color}.alpha12`,
+                borderRadius: 2,
+                p: 1,
+                color: `${color}.main`,
+              }}
+            >
+              {icon}
+            </Box>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+  );
 }
 
 /**
- * Home page component displaying filament inventory
- * @returns {JSX.Element} Home page component
+ * Dashboard page component
+ * @returns {JSX.Element} Dashboard page
  */
-export default function Home() {
-  const [filaments, setFilaments] = useState<Filament[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchFilaments();
-  }, []);
-
-  /**
-   * Fetches filaments from the API
-   */
-  const fetchFilaments = async () => {
-    try {
-      const response = await fetch('/api/filaments');
-      const data = await response.json();
-      setFilaments(data);
-    } catch (error) {
-      console.error('Failed to fetch filaments:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const columns = [
-    { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'brand', headerName: 'Brand', width: 130 },
-    { field: 'material', headerName: 'Material', width: 130 },
-    { field: 'color', headerName: 'Color', width: 130 },
-    {
-      field: 'remaining',
-      headerName: 'Remaining',
-      width: 150,
-      renderCell: (params: any) => {
-        const remaining = ((params.row.currentWeight - params.row.spoolWeight) / 
-          (params.row.initialWeight - params.row.spoolWeight)) * 100;
-        return (
-          <Box sx={{ width: '100%' }}>
-            <LinearProgress variant="determinate" value={remaining} />
-            <Typography variant="body2">{`${Math.round(remaining)}%`}</Typography>
-          </Box>
-        );
-      },
-    },
-  ];
-
+export default function DashboardPage() {
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          SpoolKeeper - Filament Inventory
-        </Typography>
-        
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          sx={{ mb: 3 }}
-          href="/filaments/new"
-        >
-          Add New Filament
-        </Button>
-
-        <Card>
-          <CardContent>
-            <div style={{ height: 400, width: '100%' }}>
-              <DataGrid
-                rows={filaments}
-                columns={columns}
-                loading={loading}
-                pageSizeOptions={[5, 10, 25]}
-                disableRowSelectionOnClick
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </Box>
-    </Container>
+    <PageContainer title="Dashboard">
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Total Filaments"
+            value={42}
+            icon={<InventoryIcon />}
+            color="primary"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Manufacturers"
+            value={8}
+            icon={<BusinessIcon />}
+            color="secondary"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Usage History"
+            value={156}
+            icon={<HistoryIcon />}
+            color="success"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Low Stock"
+            value={3}
+            icon={<WarningIcon />}
+            color="warning"
+          />
+        </Grid>
+      </Grid>
+    </PageContainer>
   );
-} 
+}

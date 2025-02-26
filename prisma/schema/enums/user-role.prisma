@@ -1,0 +1,7 @@
+/// @description User roles for access control
+enum UserRole {
+  /// Administrator with full access
+  ADMIN
+  /// Regular user with limited access
+  USER
+} 

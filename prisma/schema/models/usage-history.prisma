@@ -1,0 +1,27 @@
+/// @description Filament usage history
+model UsageHistory {
+  /// Unique identifier
+  id          String   @id @default(uuid())
+  /// Filament reference
+  filamentId  String
+  filament    Filament @relation(fields: [filamentId], references: [id])
+  /// User reference
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  /// Amount used in grams
+  usedAmount  Float
+  /// Project name
+  projectName String?
+  /// Usage date
+  date        DateTime @default(now())
+  /// Additional notes
+  notes       String?
+  /// Print duration in minutes
+  printTime   Int?
+  /// Print success flag
+  success     Boolean  @default(true)
+
+  @@index([filamentId])
+  @@index([userId])
+  @@map("usage_history")
+} 

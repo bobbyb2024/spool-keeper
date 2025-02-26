@@ -1,0 +1,27 @@
+/// @description Filament manufacturer information
+model Manufacturer {
+  /// Unique identifier
+  id             String     @id @default(uuid())
+  /// Manufacturer name
+  name           String     @unique
+  /// Registration date
+  registeredDate DateTime   @default(now())
+  /// Website URL
+  website        String?
+  /// Logo URL
+  logo           String?
+  /// Label logo URL
+  labelLogo      String?
+  /// Manufacturer tags
+  tags           String[]
+  /// Additional comments
+  comments       String?
+  /// Creation timestamp
+  createdAt      DateTime   @default(now())
+  /// Last update timestamp
+  updatedAt      DateTime   @updatedAt
+  /// Associated filaments
+  filaments      Filament[]
+
+  @@map("manufacturers")
+} 
