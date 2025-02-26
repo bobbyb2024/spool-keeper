@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Filament {
+  id          String   @id @default(uuid())
+  name        String
+  brand       String
+  material    String   // PLA, PETG, ABS, etc.
+  color       String
+  diameter    Float    // in mm
+  initialWeight Float  // in grams
+  currentWeight Float  // in grams
+  spoolWeight  Float   // empty spool weight in grams
+  price       Float
+  location    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  usageHistory UsageHistory[]
+}
+
+model UsageHistory {
+  id          String   @id @default(uuid())
+  filamentId  String
+  filament    Filament @relation(fields: [filamentId], references: [id])
+  usedAmount  Float    // in grams
+  projectName String?
+  date        DateTime @default(now())
+  notes       String?
+} 
